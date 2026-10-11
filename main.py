@@ -4,7 +4,7 @@ import tempfile
 import streamlit as st
 from dotenv import load_dotenv
 
-from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
@@ -13,12 +13,12 @@ from langchain_core.output_parsers import StrOutputParser
 
 load_dotenv()
 
-api_key = os.getenv("GOOGLE_API_KEY")
+api_key = os.getenv("OPENAI_API_KEY")
 
 st.title("Simple RAG App")
 
 if not api_key:
-    st.error("GOOGLE_API_KEY not found. Add it to your .env file.")
+    st.error("OPENAI_API_KEY not found. Add it to your ..env file.")
     st.stop()
 
 # 1. Session state
@@ -43,7 +43,7 @@ if uploaded_file and uploaded_file.name != st.session_state.file_name:
         splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
         docs = splitter.split_documents(documents)
 
-        embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001", google_api_key=api_key)
+        embeddings = OpenAIEmbeddings(model="text-embedding-3-small", api_key=api_key)
         st.session_state.vectorstore = FAISS.from_documents(docs, embeddings)
         st.session_state.file_name = uploaded_file.name
         st.success("Vector DB Created!")
@@ -55,7 +55,7 @@ if query:
     if st.session_state.vectorstore is None:
         st.info("Please upload a PDF first.")
     else:
-        llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=api_key)
+        llm = ChatOpenAI(model="gpt-4o-mini", api_key=api_key)
         retriever = st.session_state.vectorstore.as_retriever()
 
         prompt = ChatPromptTemplate.from_template(
