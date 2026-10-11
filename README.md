@@ -1,58 +1,47 @@
-Simple PDF RAG App
+# Simple PDF RAG App
 
-A lightweight Retrieval-Augmented Generation (RAG) app that lets you ask questions about a PDF. Upload a document, let the app index its text, and ask questions in plain language. Answers are generated with Google Gemini using relevant passages retrieved from the uploaded PDF.
+A Streamlit app for asking questions about a PDF. It uses OpenAI embeddings to find relevant passages and GPT-4o mini to generate answers.
 
 ## Features
 
-- Upload a PDF through a simple Streamlit interface.
-- Extract and split PDF text into overlapping chunks.
-- Create an in-memory FAISS vector index using Google Generative AI embeddings.
-- Retrieve relevant passages and generate answers with Gemini 2.5 Flash.
-- Instruct the model to say when the answer is not present in the document.
-
-## How it works
-
-1. The app loads your Google API key from `.env`.
-2. You upload a PDF, which is temporarily saved so LangChain can read it.
-3. The PDF text is split into chunks of 1,000 characters with 200 characters of overlap.
-4. Google embeddings are generated and stored in a FAISS index for the current session.
-5. For each question, the app retrieves relevant chunks and sends them with the question to Gemini 2.5 Flash.
-
-The uploaded PDF and vector index are not configured for persistent storage; the index lives in Streamlit session state.
+- Upload a PDF through a simple web interface.
+- Split PDF text into overlapping chunks.
+- Search relevant passages using a FAISS vector index.
+- Generate answers with GPT-4o mini.
 
 ## Requirements
 
 - Python 3.10 or newer
-- A Google AI API key with access to the Gemini and embedding models used by the app
+- An OpenAI API key
 
 ## Setup
 
-Clone the repository and open a terminal in the project directory:
+Clone the repository and open a terminal in its directory:
 
 ```bash
 git clone <your-repository-url>
 cd <repository-directory>
 ```
 
-Create and activate a virtual environment (recommended):
+Create and activate a virtual environment:
 
 ```bash
 python -m venv .venv
 ```
 
-Windows PowerShell:
+**Windows PowerShell:**
 
 ```powershell
 .venv\Scripts\Activate.ps1
 ```
 
-macOS or Linux:
+**macOS or Linux:**
 
 ```bash
 source .venv/bin/activate
 ```
 
-Install the dependencies:
+Install the dependencies listed in `requirements.txt`:
 
 ```bash
 pip install -r requirements.txt
@@ -60,13 +49,13 @@ pip install -r requirements.txt
 
 ## Configure your API key
 
-Create a file named `.env` in the project directory:
+Create a `.env` file in the project directory:
 
 ```env
-GOOGLE_API_KEY=your_google_api_key_here
+OPENAI_API_KEY=your_openai_api_key_here
 ```
 
-Replace the example value with your key. Keep `.env` private: do not commit API keys to GitHub. If `.env` is not already excluded, add it to `.gitignore`.
+Keep your API key private. Make sure `.env` is listed in `.gitignore` so it isn’t committed to GitHub.
 
 ## Run the app
 
@@ -74,35 +63,26 @@ Replace the example value with your key. Keep `.env` private: do not commit API 
 streamlit run main.py
 ```
 
-Streamlit will print a local URL to open in your browser.
+Open the local URL printed by Streamlit in your browser.
 
 ## Use the app
 
-1. Upload a PDF using **Upload PDF**.
-2. Wait for the vector database to finish building.
-3. Enter a question about the PDF in **Ask something about your PDF**.
-4. Read the generated answer below the input.
+1. Upload a PDF.
+2. Wait for the app to process and index it.
+3. Enter a question about the PDF.
+4. Read the answer displayed below the question box.
 
-Upload a different PDF to replace the current session's index. The app currently handles one PDF at a time and does not retain the index between sessions.
+The app processes one PDF per session. The vector index is held in Streamlit session state and isn’t saved between sessions.
 
-## Dependencies
+## How it works
 
-The exact package constraints are listed in [`requirements.txt`](requirements.txt). The app uses:
+The app extracts text from the PDF and splits it into 1,000-character chunks with 200 characters of overlap. It creates embeddings using OpenAI’s `text-embedding-3-small` model and stores them in a FAISS vector index. When you ask a question, the app retrieves relevant chunks and uses `gpt-4o-mini` to generate an answer.
 
-- [Streamlit](https://streamlit.io/) for the web interface
-- [LangChain](https://www.langchain.com/) for document processing and model orchestration
-- [Google Gemini](https://ai.google.dev/) for embeddings and answer generation
-- [FAISS](https://github.com/facebookresearch/faiss) for vector search
-- [pypdf](https://pypdf.readthedocs.io/) for PDF loading
+## Limitations
 
-## Notes and limitations
+- Requires an internet connection and a valid OpenAI API key.
+- Scanned PDFs may need OCR, which the app does not currently provide.
+- Answers can be incomplete or incorrect; check important details against the original PDF.
+- The app writes the uploaded PDF to `temp.pdf` while processing it.
 
-- The app requires an internet connection and a valid Google API key.
-- PDF text extraction quality depends on the source document. Scanned PDFs may need OCR, which this app does not currently provide.
-- Answers are based on retrieved text and can still be incomplete or incorrect; check important details against the original PDF.
-- The vector index is created again when a new PDF is uploaded and is not saved as a durable database.
-- The app uses the `gemini-2.5-flash` chat model and `models/gemini-embedding-001` embeddings.
-
-## License
-
-No license is specified in the project files provided. Add a `LICENSE` file if you want to make the terms for reuse clear.
+> **Note:** The `requirements.txt` shared earlier lists Google Gemini packages, while this version of `main.py` imports OpenAI packages. The requirements file may need matching OpenAI dependencies for the app to install and run.
