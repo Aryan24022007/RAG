@@ -85,4 +85,4 @@ The app extracts text from the PDF and splits it into 1,000-character chunks wit
 - Answers can be incomplete or incorrect; check important details against the original PDF.
 - The app writes the uploaded PDF to `temp.pdf` while processing it.
 
-> **Note:** The `requirements.txt` shared earlier lists Google Gemini packages, while this version of `main.py` imports OpenAI packages. The requirements file may need matching OpenAI dependencies for the app to install and run.
+
